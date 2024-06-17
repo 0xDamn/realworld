@@ -1,19 +1,18 @@
-### Migrations
+# Migrations
+
 SQLx manages and applies changes to the database schema using files called _migrations_.
 
 These are simply SQL script files that are run in a particular order. The filenames follow this pattern:
 
-```
-<version number>_<name with words separated by underscores>.sql
-```
+`<version number>_<name with words separated by underscores>.sql`
 
 `.up` or `.down` can also appear before `.sql` which signifies that the migration is _reversible_. However,
 you don't need to worry about those for this project.
 
-The version number can be any unique non-decreasing positive integer. `sqlx migrate add` by default uses the current 
-UNIX timestamp in seconds as the version number, but you can also use your own scheme. 
+The version number can be any unique non-decreasing positive integer. `sqlx migrate add` by default uses the current
+UNIX timestamp in seconds as the version number, but you can also use your own scheme.
 
-What I like to do is to use integers starting from 1 for the "bootstrapping" migrations that initially set up the 
+What I like to do is to use integers starting from 1 for the "bootstrapping" migrations that initially set up the
 database schema, and then switch to timestamps for new migrations after the first deployment of the project. This
 provides a clear delineation between the "original vision" of the project and changes that came after the MVP,
 which may be useful for retrospectives. If you have a lot of migrations after the original set, that may indicate
