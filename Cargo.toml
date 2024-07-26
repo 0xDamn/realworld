@@ -6,6 +6,7 @@ publish = false
 authors = [
     "Austin Bonander <austin@launchbadge.com>",
     "David Pedersen <david.pdrsn@gmail.com>",
+    "Taltorzy Wang <taltorzy@hotmail.com",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -52,3 +53,6 @@ itertools = "0.12"
 log = "0.4.14"
 rand = "0.8.4"
 thiserror = "1.0.30"
+
+[dev-dependencies]
+reqwest = "0.11"
