@@ -42,7 +42,7 @@ async fn main() -> anyhow::Result<()> {
 
     // This embeds database migrations in the application binary so we can ensure the database
     // is migrated correctly on startup
-    sqlx::migrate!().run(&db).await?;
+    // sqlx::migrate!().run(&db).await?;
 
     // Finally, we spin up our API.
     http::serve(config, db).await?;
