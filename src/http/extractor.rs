@@ -16,7 +16,7 @@ const DEFAULT_SESSION_LENGTH: time::Duration = time::Duration::weeks(2);
 
 // Ideally the Realworld spec would use the `Bearer` scheme as that's relatively standard
 // and has parsers available, but it's really not that hard to parse anyway.
-const SCHEME_PREFIX: &str = "Token ";
+const SCHEME_PREFIX: &str = "Bearer ";
 
 /// Add this as a parameter to a handler function to require the user to be logged in.
 ///

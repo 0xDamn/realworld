@@ -43,8 +43,9 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 use tower_http::{
     catch_panic::CatchPanicLayer, compression::CompressionLayer,
-    sensitive_headers::SetSensitiveHeadersLayer, timeout::TimeoutLayer, trace::TraceLayer,
+    sensitive_headers::SetSensitiveHeadersLayer, timeout::TimeoutLayer, trace, trace::TraceLayer,
 };
+use tracing::{info, Level};
 
 /// The core type through which handler functions can access common API state.
 ///
@@ -104,7 +105,17 @@ fn api_router(api_context: ApiContext) -> Router {
         .layer((
             SetSensitiveHeadersLayer::new([AUTHORIZATION]),
             CompressionLayer::new(),
-            TraceLayer::new_for_http().on_failure(()),
+            TraceLayer::new_for_http()
+                .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+                .on_request(trace::DefaultOnRequest::new().level(Level::INFO))
+                .on_response(trace::DefaultOnResponse::new().level(Level::INFO))
+                .on_body_chunk(trace::DefaultOnBodyChunk::new())
+                .on_eos(
+                    trace::DefaultOnEos::new()
+                        .level(Level::INFO)
+                        .latency_unit(tower_http::LatencyUnit::Micros),
+                )
+                .on_failure(()),
             TimeoutLayer::new(Duration::from_secs(30)),
             CatchPanicLayer::new(),
         ))
