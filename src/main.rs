@@ -9,6 +9,9 @@
 use anyhow::Context;
 use clap::Parser;
 use sqlx::postgres::PgPoolOptions;
+use tracing::subscriber::set_global_default;
+use tracing_bunyan_formatter::{BunyanFormattingLayer, JsonStorageLayer};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter, Registry};
 
 use realworld_axum_sqlx::config::Config;
 use realworld_axum_sqlx::http;
@@ -20,7 +23,24 @@ async fn main() -> anyhow::Result<()> {
     dotenv::dotenv().ok();
 
     // Initialize the logger.
-    env_logger::init();
+    // Update: use `tracing_subscriber` instead of `env_logger` for more complicated telemetry
+    // data.
+    // Original logger: `env_logger::init();`
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    let formatting_layer = BunyanFormattingLayer::new(
+        "realworld".into(),
+        // Output the formatted spans to stdout.
+        std::io::stdout,
+    );
+    // The `with` method is provided by `SubscriberExt`, an extension
+    // trait for `Subscriber` exposed by `tracing_subscriber`
+    let subscriber = Registry::default()
+        .with(env_filter)
+        .with(JsonStorageLayer)
+        .with(formatting_layer);
+    // `set_global_default` can be used by applications to specify
+    // what subscriber should be used to process spans.
+    set_global_default(subscriber).expect("Failed to set subscriber");
 
     // Parse our configuration from the environment.
     // This will exit with a help message if something is wrong.

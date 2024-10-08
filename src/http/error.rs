@@ -147,13 +147,13 @@ impl IntoResponse for Error {
             Self::Sqlx(ref e) => {
                 // TODO: we probably want to use `tracing` instead
                 // so that this gets linked to the HTTP request by `TraceLayer`.
-                log::error!("SQLx error: {:?}", e);
+                tracing::error!("SQLx error: {:?}", e);
             }
 
             Self::Anyhow(ref e) => {
                 // TODO: we probably want to use `tracing` instead
                 // so that this gets linked to the HTTP request by `TraceLayer`.
-                log::error!("Generic error: {:?}", e);
+                tracing::error!("Generic error: {:?}", e);
             }
 
             // Other errors get mapped normally.

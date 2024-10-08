@@ -57,12 +57,12 @@ impl AuthUser {
     /// Attempt to parse `Self` from an `Authorization` header.
     fn from_authorization(ctx: &ApiContext, auth_header: &HeaderValue) -> Result<Self, Error> {
         let auth_header = auth_header.to_str().map_err(|_| {
-            log::debug!("Authorization header is not UTF-8");
+            tracing::debug!("Authorization header is not UTF-8");
             Error::Unauthorized
         })?;
 
         if !auth_header.starts_with(SCHEME_PREFIX) {
-            log::debug!(
+            tracing::debug!(
                 "Authorization header is using the wrong scheme: {:?}",
                 auth_header
             );
@@ -73,7 +73,7 @@ impl AuthUser {
 
         let jwt =
             jwt::Token::<jwt::Header, AuthUserClaims, _>::parse_unverified(token).map_err(|e| {
-                log::debug!(
+                tracing::debug!(
                     "failed to parse Authorization header {:?}: {}",
                     auth_header,
                     e
@@ -91,7 +91,7 @@ impl AuthUser {
         // algorithm declared in the token matches the signing algorithm you're verifying with.
         // The `jwt` crate does.
         let jwt = jwt.verify_with_key(&hmac).map_err(|e| {
-            log::debug!("JWT failed to verify: {}", e);
+            tracing::debug!("JWT failed to verify: {}", e);
             Error::Unauthorized
         })?;
 
@@ -122,7 +122,7 @@ impl AuthUser {
         // token on the frontend.
 
         if claims.exp < OffsetDateTime::now_utc().unix_timestamp() {
-            log::debug!("token expired");
+            tracing::debug!("token expired");
             return Err(Error::Unauthorized);
         }
 
