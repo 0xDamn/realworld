@@ -96,6 +96,13 @@ async fn create_user(
 }
 
 // https://realworld-docs.netlify.app/docs/specs/backend-specs/endpoints#authentication
+#[tracing::instrument(
+    name = "Logging in realworld system",
+    skip(ctx, req),
+    fields(
+        login_email = %req.user.email,
+    )
+)]
 async fn login_user(
     ctx: State<ApiContext>,
     Json(req): Json<UserBody<LoginUser>>,

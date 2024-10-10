@@ -27,13 +27,15 @@ serde = { version = "1.0.130", features = ["derive"] }
 argon2 = "0.5"
 
 # axum builds on the types in Tower
-tower = "0.4.11"
+tower = "0.5.1"
 tower-http = { version = "0.5.0", features = [
     "catch-panic",
     "compression-full",
     "sensitive-headers",
     "timeout",
     "trace",
+    "util",
+    "request-id",
 ] }
 
 jwt = "0.15.0"
@@ -48,7 +50,6 @@ uuid = { version = "1.0", features = ["serde"] }
 anyhow = "1.0.48"
 async-trait = "0.1.51"
 dotenv = "0.15.0"
-env_logger = "0.10.0"
 itertools = "0.12"
 log = "0.4.14"
 rand = "0.8.4"
@@ -56,6 +57,7 @@ thiserror = "1.0.30"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tracing-bunyan-formatter = "0.3.9"
+tracing-log = "0.2.0"
 
 [dev-dependencies]
 reqwest = "0.11"

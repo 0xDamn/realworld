@@ -41,11 +41,17 @@ pub use error::{Error, ResultExt};
 
 pub type Result<T, E = Error> = std::result::Result<T, E>;
 
+use tower::ServiceBuilder;
 use tower_http::{
-    catch_panic::CatchPanicLayer, compression::CompressionLayer,
-    sensitive_headers::SetSensitiveHeadersLayer, timeout::TimeoutLayer, trace, trace::TraceLayer,
+    catch_panic::CatchPanicLayer,
+    compression::CompressionLayer,
+    request_id::{MakeRequestUuid, PropagateRequestIdLayer, SetRequestIdLayer},
+    sensitive_headers::SetSensitiveHeadersLayer,
+    timeout::TimeoutLayer,
+    trace,
+    trace::TraceLayer,
 };
-use tracing::{info, Level};
+use tracing::Level;
 
 /// The core type through which handler functions can access common API state.
 ///
@@ -96,19 +102,22 @@ pub async fn serve(config: Config, db: PgPool) -> anyhow::Result<()> {
 }
 
 fn api_router(api_context: ApiContext) -> Router {
-    // This is the order that the modules were authored in.
-    Router::new()
-        .merge(users::router())
-        .merge(profiles::router())
-        .merge(articles::router())
-        // Enables logging. Use `RUST_LOG=tower_http=debug`
-        .layer((
-            SetSensitiveHeadersLayer::new([AUTHORIZATION]),
-            CompressionLayer::new(),
+    let middleware = ServiceBuilder::new()
+        .layer(SetRequestIdLayer::x_request_id(MakeRequestUuid))
+        .layer(SetSensitiveHeadersLayer::new([AUTHORIZATION]))
+        .layer(
             TraceLayer::new_for_http()
-                .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+                .make_span_with(
+                    trace::DefaultMakeSpan::new()
+                        .level(Level::INFO)
+                        .include_headers(true),
+                )
                 .on_request(trace::DefaultOnRequest::new().level(Level::INFO))
-                .on_response(trace::DefaultOnResponse::new().level(Level::INFO))
+                .on_response(
+                    trace::DefaultOnResponse::new()
+                        .level(Level::INFO)
+                        .include_headers(true),
+                )
                 .on_body_chunk(trace::DefaultOnBodyChunk::new())
                 .on_eos(
                     trace::DefaultOnEos::new()
@@ -116,9 +125,17 @@ fn api_router(api_context: ApiContext) -> Router {
                         .latency_unit(tower_http::LatencyUnit::Micros),
                 )
                 .on_failure(()),
-            TimeoutLayer::new(Duration::from_secs(30)),
-            CatchPanicLayer::new(),
-        ))
+        )
+        .layer(PropagateRequestIdLayer::x_request_id())
+        .layer(CompressionLayer::new())
+        .layer(TimeoutLayer::new(Duration::from_secs(30)))
+        .layer(CatchPanicLayer::new());
+
+    Router::new()
+        .merge(users::router())
+        .merge(profiles::router())
+        .merge(articles::router())
+        .layer(middleware)
         .with_state(api_context)
 }
 
