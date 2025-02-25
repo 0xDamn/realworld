@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 authors = [
-    "Austin Bonander <austin@launchbadge.com>",
-    "David Pedersen <david.pdrsn@gmail.com>",
-    "Taltorzy Wang <taltorzy@hotmail.com",
+  "Austin Bonander <austin@launchbadge.com>",
+  "David Pedersen <david.pdrsn@gmail.com>",
+  "Zijian Wang <taltorzy@hotmail.com",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -14,9 +14,18 @@ authors = [
 [dependencies]
 # Core dependencies: runtime, HTTP framework and database client.
 futures = "0.3"
-tokio = { version = "1.14.0", features = ["macros", "rt-multi-thread", "signal"] }
+tokio = { version = "1.14.0", features = [
+  "macros",
+  "rt-multi-thread",
+  "signal",
+] }
 axum = { version = "0.7.3", features = ["tower-log"] }
-sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "postgres", "uuid", "time"] }
+sqlx = { version = "0.7", features = [
+  "runtime-tokio-native-tls",
+  "postgres",
+  "uuid",
+  "time",
+] }
 
 # The `clap` beta gives us a much nicer way to define configuration parameters for our application.
 clap = { version = "4.0.0", features = ["derive", "env"] }
@@ -29,13 +38,14 @@ argon2 = "0.5"
 # axum builds on the types in Tower
 tower = "0.5.1"
 tower-http = { version = "0.5.0", features = [
-    "catch-panic",
-    "compression-full",
-    "sensitive-headers",
-    "timeout",
-    "trace",
-    "util",
-    "request-id",
+  "catch-panic",
+  "compression-full",
+  "sensitive-headers",
+  "timeout",
+  "trace",
+  "util",
+  "request-id",
+  "auth",
 ] }
 
 jwt = "0.15.0"

@@ -20,6 +20,15 @@ async fn main() -> anyhow::Result<()> {
     // since we're not going to use a `.env` file if we deploy this application.
     dotenv::dotenv().ok();
 
+    // Since we use tracing telemetry ecosystem, We need a subscriber for tracing data colloction
+    // and proceesion.
+    // We can make decision on tracing data(like Span and Event)
+    //  - WHERE: where to output the telemetry data? Stdout, or stored in file or transfer
+    //  through network.
+    //  - WHAT: What kind of tracing data should be? The kind can be **Level** like `INFO`,
+    //  `DEBUG` or the kind should be **Route** like "/user/*", "/article/*"
+    // All the decision above can be made the in subscriber
+    // **Note:** the Subscriber should be **only** setup once, since it's static normally.
     let subscriber = get_subscriber("realworld".into(), "info".into(), std::io::stdout);
     init_subscriber(subscriber);
 
